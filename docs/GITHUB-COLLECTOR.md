@@ -7,12 +7,12 @@ Provide a bounded, read-only mechanism to observe public GitHub repository metad
 ## 2. Data flow
 
 1. A caller supplies one repository identity or an owner (user or organization).
-2. The collector issues unauthenticated GitHub REST API \`GET\` requests over HTTPS.
+2. The collector issues unauthenticated GitHub REST API `GET` requests over HTTPS.
 3. The response is checked for public visibility and required identity fields.
 4. A strict field allowlist is normalized into JSON candidate output.
 5. A human may inspect the output and decide separately whether to register a project.
 
-Candidate records use \`registration_source: AUTOMATED_DISCOVERY\` and \`status: DISCOVERED\`. \`observed_at\` records when the collector saw the metadata; it is not a registry \`registered_at\` timestamp.
+Candidate records use `registration_source: AUTOMATED_DISCOVERY` and `status: DISCOVERED`. `observed_at` records when the collector saw the metadata; it is not a registry `registered_at` timestamp.
 
 ## 3. Public data boundary
 
@@ -22,20 +22,20 @@ The collector rejects a single-repository response marked private or internal an
 
 ## 4. Read-only and authorization boundary
 
-- HTTP method: \`GET\` only.
+- HTTP method: `GET` only.
 - Authentication: none; no token parameter or credential store.
 - GitHub mutations: none.
-- Registry mutations: none; \`registry/projects.json\` is neither loaded nor changed.
-- Approval: none; discovered candidates remain \`DISCOVERED\`.
+- Registry mutations: none; `registry/projects.json` is neither loaded nor changed.
+- Approval: none; discovered candidates remain `DISCOVERED`.
 - External automation: no workflow, webhook, scheduler, service, or deployment is installed.
 
 Discovery is not authorization. A candidate name or owner match is not proof that a repository is an official AP1 project.
 
 ## 5. Pagination and failure behavior
 
-Repository listings request public repositories in pages of up to 100. \`max_pages\` is bounded from 1 to 100 to prevent unbounded collection. Network, timeout, HTTP, rate-limit, malformed JSON, and incomplete identity failures are surfaced as errors. The collector does not silently retry or convert failures into successful/empty results.
+Repository listings request public repositories in pages of up to 100. `max_pages` is bounded from 1 to 100 to prevent unbounded collection. Network, timeout, HTTP, rate-limit, malformed JSON, and incomplete identity failures are surfaced as errors. The collector does not silently retry or convert failures into successful/empty results.
 
-The GitHub unauthenticated rate limit applies. A caller should treat rate-limit responses as \`PENDING\` or \`UNKNOWN\` operationally until a fresh read succeeds; no such status is written automatically by this code.
+The GitHub unauthenticated rate limit applies. A caller should treat rate-limit responses as `PENDING` or `UNKNOWN` operationally until a fresh read succeeds; no such status is written automatically by this code.
 
 ## 6. Verification
 
