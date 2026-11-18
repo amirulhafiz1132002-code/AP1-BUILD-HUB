@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/amirulhafiz1132002-code/AP1-BUILD-HUB/blob/main/schemas/project-registry.schema.json",
+  "title": "AP1 Project Registry",
+  "description": "Validated registry document for AP1-associated GitHub repositories. Registration does not itself imply project approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_schema_version",
+    "projects"
+  ],
+  "properties": {
+    "registry_schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/project"
+      }
+    }
+  },
+  "$defs": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "github",
+        "registration_source",
+        "status",
+        "registered_at"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "pattern": "^github:[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository_id",
+            "full_name",
+            "url"
+          ],
+          "properties": {
+            "repository_id": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "full_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "default_branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "visibility": {
+              "type": "string",
+              "enum": [
+                "public",
+                "private",
+                "internal",
+                "unknown"
+              ]
+            },
+            "archived": {
+              "type": "boolean"
+            }
+          }
+        },
+        "registration_source": {
+          "type": "string",
+          "enum": [
+            "MANUAL",
+            "AUTOMATED_DISCOVERY"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DISCOVERED",
+            "PENDING_REVIEW",
+            "APPROVED",
+            "REJECTED",
+            "ARCHIVED"
+          ]
+        },
+        "registered_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "discovered_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "uniqueItems": true
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decision",
+            "reviewed_by",
+            "reviewed_at"
+          ],
+          "properties": {
+            "decision": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "REJECTED"
+              ]
+            },
+            "reviewed_by": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "reviewed_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "APPROVED"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "approval"
+            ],
+            "properties": {
+              "approval": {
+                "properties": {
+                  "decision": {
+                    "const": "APPROVED"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "REJECTED"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "approval"
+            ],
+            "properties": {
+              "approval": {
+                "properties": {
+                  "decision": {
+                    "const": "REJECTED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
