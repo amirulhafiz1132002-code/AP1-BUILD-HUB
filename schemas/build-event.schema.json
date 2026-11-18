@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/amirulhafiz1132002-code/AP1-BUILD-HUB/blob/main/schemas/build-event.schema.json",
+  "title": "AP1 Build Event",
+  "description": "Evidence-oriented event record for AP1 build and integration activity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "project_id",
+    "event_type",
+    "occurred_at",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "build",
+        "test",
+        "audit",
+        "integration",
+        "deployment",
+        "synchronization",
+        "release"
+      ]
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "VERIFIED",
+        "FAILED",
+        "PENDING",
+        "UNKNOWN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "workflow": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "reference"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "commit",
+              "workflow_run",
+              "test_report",
+              "log",
+              "artifact",
+              "external_record"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Optional numeric measurements; metric names are defined by the producing project.",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  }
+}
